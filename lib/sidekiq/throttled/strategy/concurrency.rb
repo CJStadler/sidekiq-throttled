@@ -85,6 +85,15 @@ module Sidekiq
           Sidekiq.redis { |conn| conn.del(key(job_args)) }
         end
 
+        # Marks job as processing.
+        # @return [void]
+        def start!(jid, *job_args)
+          Sidekiq.redis do |conn|
+            conn.zadd(key(job_args), Time.now.to_f + @lost_job_threshold, jid)
+            conn.expire(key(job_args), @lost_job_threshold)
+          end
+        end
+
         # Remove jid from the pool of jobs in progress
         # @return [void]
         def finalize!(jid, *job_args)

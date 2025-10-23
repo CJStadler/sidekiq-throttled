@@ -36,11 +36,6 @@ local function change_backlog_size(delta)
   redis.call("EXPIRE", backlog_info_key, math.ceil((lost_job_threshold * curr_backlog_size) + 1 / lmt))
 end
 
-local function register_job_in_progress()
-  redis.call("ZADD", in_progress_jobs_key, now + lost_job_threshold , jid)
-  redis.call("EXPIRE", in_progress_jobs_key, lost_job_threshold)
-end
-
 local function clear_stale_in_progress_jobs()
   local cleared_count = redis.call("ZREMRANGEBYSCORE", in_progress_jobs_key, "-inf", "(" .. now)
   change_backlog_size(-cleared_count)
@@ -55,7 +50,6 @@ if over_limit() and not job_already_in_progress() then
   return 1
 end
 
-register_job_in_progress()
 change_backlog_size(-1)
 
 return 0

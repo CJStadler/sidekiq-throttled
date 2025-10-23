@@ -138,7 +138,7 @@ RSpec.describe Sidekiq::Throttled::Strategy do
       let(:concurrency) do
         {
           concurrency: [
-            { limit: 7, key_suffix: ->(_, *) { 1 } },
+            { limit: 7, key_suffix: "static" },
             { limit: 3, key_suffix: ->(job_arg, *) { job_arg } },
           ]
         }
